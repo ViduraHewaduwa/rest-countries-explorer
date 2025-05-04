@@ -212,7 +212,6 @@ const CountryDetail = () => {
           }
         }}
       >
-        {/* No icon here */}
         ← Back to Galaxy
       </Button>
 
@@ -319,9 +318,6 @@ const CountryDetail = () => {
                 </Typography>
                 <Typography>
                   <strong style={{ color: '#ff00ea' }}>Currencies:</strong> {Object.values(country.currencies || {}).map(curr => curr.name).join(', ') || 'N/A'}
-                </Typography>
-                <Typography>
-                  <strong style={{ color: '#ff00ea' }}>Languages:</strong> {Object.values(country.languages || {}).join(', ') || 'N/A'}
                 </Typography>
               </Box>
             </Grid>

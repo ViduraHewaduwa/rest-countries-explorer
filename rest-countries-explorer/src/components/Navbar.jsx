@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { 
   AppBar, 
   Toolbar, 
@@ -9,27 +9,15 @@ import {
   Stack,
   Menu,
   MenuItem,
-  Avatar,
-  IconButton
+  Avatar
 } from '@mui/material';
 import { Link, useNavigate } from 'react-router-dom';
+import { useAuth } from '../api/auth';
 
 const Navbar = () => {
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [username, setUsername] = useState('');
+  const { user, logout, isAuthenticated } = useAuth();
   const [anchorEl, setAnchorEl] = useState(null);
   const navigate = useNavigate();
-  
-  // Check authentication status when component mounts
-  useEffect(() => {
-    const accessToken = localStorage.getItem('accessToken');
-    const storedUsername = localStorage.getItem('username');
-    
-    if (accessToken && storedUsername) {
-      setIsLoggedIn(true);
-      setUsername(storedUsername);
-    }
-  }, []);
   
   const handleProfileClick = (event) => {
     setAnchorEl(event.currentTarget);
@@ -40,17 +28,8 @@ const Navbar = () => {
   };
   
   const handleLogout = () => {
-    // Clear auth tokens and user info
-    localStorage.removeItem('accessToken');
-    localStorage.removeItem('refreshToken');
-    localStorage.removeItem('username');
-    
-    // Update state
-    setIsLoggedIn(false);
-    setUsername('');
+    logout();
     handleClose();
-    
-    // Navigate to home
     navigate('/');
   };
 
@@ -138,7 +117,7 @@ const Navbar = () => {
 
         
           <Stack direction="row" spacing={2} alignItems="center">
-            {isLoggedIn ? (
+            {isAuthenticated && user ? (
               <>
                 <Box 
                   onClick={handleProfileClick}
@@ -165,7 +144,7 @@ const Navbar = () => {
                       mr: 1 
                     }}
                   >
-                    {username ? username[0].toUpperCase() : 'U'}
+                    {user.username ? user.username[0].toUpperCase() : 'U'}
                   </Avatar>
                   <Typography 
                     sx={{ 
@@ -173,7 +152,7 @@ const Navbar = () => {
                       fontWeight: 500
                     }}
                   >
-                    {username}
+                    {user.username}
                   </Typography>
                 </Box>
 
@@ -208,19 +187,6 @@ const Navbar = () => {
                     }}
                   >
                     My Profile
-                  </MenuItem>
-                  <MenuItem 
-                    component={Link} 
-                    to="/settings" 
-                    onClick={handleClose}
-                    sx={{
-                      color: '#fff',
-                      '&:hover': {
-                        background: 'rgba(187, 0, 255, 0.1)',
-                      }
-                    }}
-                  >
-                    Settings
                   </MenuItem>
                   <MenuItem 
                     onClick={handleLogout}

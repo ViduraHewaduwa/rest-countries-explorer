@@ -1,8 +1,21 @@
-import { Card, CardContent, CardMedia, Typography, Box } from '@mui/material';
+import { Card, CardContent, CardMedia, Typography, Box, IconButton } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
+import { useFavorites } from '../context/FavoritesContext';
+import StarIcon from '@mui/icons-material/Star';
+import StarBorderIcon from '@mui/icons-material/StarBorder';
 
 const CountryCard = ({ country }) => {
   const navigate = useNavigate();
+  const { isFavorite, addFavorite, removeFavorite } = useFavorites();
+
+  const handleFavoriteClick = (e) => {
+    e.stopPropagation(); // Prevent card click when clicking favorite button
+    if (isFavorite(country.cca3)) {
+      removeFavorite(country.cca3);
+    } else {
+      addFavorite(country);
+    }
+  };
 
   return (
     <Card
@@ -31,6 +44,23 @@ const CountryCard = ({ country }) => {
         },
       }}
     >
+      <IconButton
+        onClick={handleFavoriteClick}
+        sx={{
+          position: 'absolute',
+          top: 8,
+          right: 8,
+          zIndex: 2,
+          color: isFavorite(country.cca3) ? '#bb00ff' : 'rgba(187, 0, 255, 0.5)',
+          '&:hover': {
+            color: '#bb00ff',
+            transform: 'scale(1.1)',
+          },
+        }}
+      >
+        {isFavorite(country.cca3) ? <StarIcon /> : <StarBorderIcon />}
+      </IconButton>
+
       <CardMedia
         component="img"
         height="150"
@@ -83,9 +113,6 @@ const CountryCard = ({ country }) => {
           </Typography>
           <Typography>
             <strong>Capital:</strong> {country.capital?.[0] || 'N/A'}
-          </Typography>
-          <Typography>
-          <strong>Languages:</strong> {country.languages ? Object.values(country.languages).join(', ') : 'N/A'}
           </Typography>
         </Box>
       </CardContent>

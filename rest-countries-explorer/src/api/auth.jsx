@@ -1,40 +1,20 @@
-import React, { createContext, useState, useContext, useEffect } from 'react';
+import React, { createContext, useState, useContext } from 'react';
 
-
-// Create auth context
 const AuthContext = createContext(null);
 
-// Auth Provider component
 export const AuthProvider = ({ children }) => {
-  const [user, setUser] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const [user, setUser] = useState(() => {
+    const username = localStorage.getItem('username');
+    return username ? { username } : null;
+  });
 
-  // Check if user is logged in on mount
-  useEffect(() => {
-    const checkLoggedIn = () => {
-      const accessToken = localStorage.getItem('accessToken');
-      const username = localStorage.getItem('username');
-      
-      if (accessToken && username) {
-        setUser({ username });
-      }
-      
-      setLoading(false);
-    };
-    
-    checkLoggedIn();
-  }, []);
-
-  // Login function
   const login = (userData, tokens) => {
     localStorage.setItem('accessToken', tokens.access);
     localStorage.setItem('refreshToken', tokens.refresh);
     localStorage.setItem('username', userData.username);
     setUser(userData);
-    return true;
   };
 
-  // Logout function
   const logout = () => {
     localStorage.removeItem('accessToken');
     localStorage.removeItem('refreshToken');
@@ -51,7 +31,6 @@ export const AuthProvider = ({ children }) => {
   // Check if token is expired
   const isTokenExpired = (token) => {
     if (!token) return true;
-    
     try {
       const payload = JSON.parse(atob(token.split('.')[1]));
       return payload.exp * 1000 < Date.now();
@@ -63,14 +42,13 @@ export const AuthProvider = ({ children }) => {
   // Refresh token function
   const refreshToken = async () => {
     const refresh = localStorage.getItem('refreshToken');
-    
     if (!refresh) {
       logout();
-      return false;
+      return null;
     }
     
     try {
-      const response = await fetch('/api/token/refresh/', {
+      const response = await fetch('http://127.0.0.1:8000/api/auth/token/refresh/', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -78,30 +56,32 @@ export const AuthProvider = ({ children }) => {
         body: JSON.stringify({ refresh }),
       });
       
-      if (!response.ok) throw new Error('Token refresh failed');
+      if (!response.ok) {
+        logout();
+        return null;
+      }
       
-      const tokens = await response.json();
-      localStorage.setItem('accessToken', tokens.access);
-      return true;
+      const data = await response.json();
+      localStorage.setItem('accessToken', data.access);
+      return data.access;
     } catch (error) {
       logout();
-      return false;
+      return null;
     }
   };
 
   // Auth-aware fetch function
   const authFetch = async (url, options = {}) => {
-    // Get access token
     let accessToken = localStorage.getItem('accessToken');
     
     // Check if token is expired
     if (accessToken && isTokenExpired(accessToken)) {
       // Try to refresh token
-      const refreshSuccess = await refreshToken();
-      if (!refreshSuccess) {
+      const newToken = await refreshToken();
+      if (!newToken) {
         throw new Error('Session expired');
       }
-      accessToken = localStorage.getItem('accessToken');
+      accessToken = newToken;
     }
     
     // Add auth header
@@ -112,24 +92,22 @@ export const AuthProvider = ({ children }) => {
     };
     
     // Make the fetch request
-    const response = await fetch(url, {
+    let response = await fetch(url, {
       ...options,
       headers,
     });
     
-    // Handle 401 Unauthorized (token might be invalid)
+    // Handle 401 Unauthorized
     if (response.status === 401) {
       // Try to refresh token
-      const refreshSuccess = await refreshToken();
-      if (!refreshSuccess) {
+      const newToken = await refreshToken();
+      if (!newToken) {
         throw new Error('Session expired');
       }
       
       // Retry with new token
-      accessToken = localStorage.getItem('accessToken');
-      headers.Authorization = `Bearer ${accessToken}`;
-      
-      return fetch(url, {
+      headers.Authorization = `Bearer ${newToken}`;
+      response = await fetch(url, {
         ...options,
         headers,
       });
@@ -138,15 +116,13 @@ export const AuthProvider = ({ children }) => {
     return response;
   };
 
-  // Value object to be provided by context
   const value = {
     user,
-    loading,
     login,
     logout,
-    getAuthHeader,
-    authFetch,
     isAuthenticated: !!user,
+    getAuthHeader,
+    authFetch
   };
 
   return (
@@ -156,7 +132,6 @@ export const AuthProvider = ({ children }) => {
   );
 };
 
-// Custom hook to use auth context
 export const useAuth = () => {
   const context = useContext(AuthContext);
   if (context === null) {

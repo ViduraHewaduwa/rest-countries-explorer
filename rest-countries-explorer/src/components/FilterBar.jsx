@@ -7,22 +7,10 @@ const StyledSelect = styled(Select)({ /* ...your styles... */ });
 const FilterBar = ({
   searchQuery,
   selectedRegion,
-  selectedLanguage,        // NEW
   onSearchChange,
   onRegionChange,
-  onLanguageChange,        // NEW
 }) => {
   const regions = ['Africa', 'Americas', 'Asia', 'Europe', 'Oceania'];
-  const languages = [
-    { code: '', name: 'All Languages' },
-    { code: 'en', name: 'English' },
-    { code: 'fr', name: 'French' },
-    { code: 'es', name: 'Spanish' },
-    { code: 'zh', name: 'Chinese' },
-    { code: 'ar', name: 'Arabic' },
-    { code: 'ru', name: 'Russian' },
-    // ...add more as needed
-  ];
 
   return (
     <Box sx={{
@@ -80,28 +68,6 @@ const FilterBar = ({
           <MenuItem value="">All Regions</MenuItem>
           {regions.map((region) => (
             <MenuItem key={region} value={region}>{region}</MenuItem>
-          ))}
-        </StyledSelect>
-      </FormControl>
-
-      {/* Language Dropdown */}
-      <FormControl sx={{ minWidth: { xs: '100%', sm: 200 } }}>
-        <InputLabel
-          sx={{
-            color: '#bb79ff',
-            fontFamily: 'Orbitron, monospace',
-            '&.Mui-focused': { color: '#ff00ea' },
-          }}
-        >
-          Filter by Language
-        </InputLabel>
-        <StyledSelect
-          value={selectedLanguage}
-          label="Filter by Language"
-          onChange={(e) => onLanguageChange(e.target.value)}
-        >
-          {languages.map((lang) => (
-            <MenuItem key={lang.code} value={lang.code}>{lang.name}</MenuItem>
           ))}
         </StyledSelect>
       </FormControl>

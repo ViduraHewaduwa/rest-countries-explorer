@@ -10,6 +10,7 @@ import {
   CircularProgress
 } from '@mui/material';
 import { Link, useNavigate } from 'react-router-dom';
+import { useAuth } from '../api/auth';
 
 // Login Page Component
 export const Login = () => {
@@ -18,6 +19,7 @@ export const Login = () => {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+  const { login } = useAuth();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -39,14 +41,9 @@ export const Login = () => {
         throw new Error(data.error || 'Login failed');
       }
 
-      // Store tokens in localStorage
-      localStorage.setItem('accessToken', data.access);
-      localStorage.setItem('refreshToken', data.refresh);
-      
-      // Store user info
-      localStorage.setItem('username', username);
-      
-      navigate('/');
+      // Call login from AuthContext to update state
+      login({ username }, { access: data.access, refresh: data.refresh });
+      navigate('/profile');
     } catch (err) {
       setError(err.message);
     } finally {

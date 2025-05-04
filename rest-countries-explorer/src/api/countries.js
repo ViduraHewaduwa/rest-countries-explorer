@@ -2,13 +2,14 @@ import axios from 'axios';
 
 const BASE_URL = 'https://restcountries.com/v3.1';
 
-const api = axios.create({
+// Create axios instance
+export const api = axios.create({
   baseURL: BASE_URL,
 });
 
 export const getAllCountries = async () => {
   try {
-    const { data } = await api.get('/all');
+    const { data } = await axios.get(`${BASE_URL}/all`);
     return data;
   } catch (error) {
     console.error('Error fetching all countries:', error);
@@ -18,7 +19,7 @@ export const getAllCountries = async () => {
 
 export const getCountryByCode = async (code) => {
   try {
-    const { data } = await api.get(`/alpha/${code}`);
+    const { data } = await axios.get(`${BASE_URL}/alpha/${code}`);
     return data[0];
   } catch (error) {
     console.error('Error fetching country by code:', error);
@@ -28,7 +29,7 @@ export const getCountryByCode = async (code) => {
 
 export const searchCountries = async (name) => {
   try {
-    const { data } = await api.get(`/name/${name}`);
+    const { data } = await axios.get(`${BASE_URL}/name/${name}`);
     return data;
   } catch (error) {
     console.error('Error searching countries:', error);
@@ -38,7 +39,7 @@ export const searchCountries = async (name) => {
 
 export const getCountriesByRegion = async (region) => {
   try {
-    const { data } = await api.get(`/region/${region}`);
+    const { data } = await axios.get(`${BASE_URL}/region/${region}`);
     return data;
   } catch (error) {
     console.error('Error fetching countries by region:', error);

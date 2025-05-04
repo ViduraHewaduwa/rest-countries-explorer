@@ -13,9 +13,12 @@ import {
   CircularProgress
 } from '@mui/material';
 import { useAuth } from '../api/auth'; // Adjust the import path as necessary
+import { useFavorites } from '../context/FavoritesContext';
+import CountryCard from './CountryCard';
 
 const Profile = () => {
   const { user, authFetch, logout } = useAuth();
+  const { favorites } = useFavorites();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
@@ -351,6 +354,54 @@ const Profile = () => {
               </Grid>
             </Grid>
           </Box>
+        )}
+      </Paper>
+
+      {/* Favorites Section */}
+      <Paper 
+        elevation={6} 
+        sx={{
+          p: 4,
+          mt: 4,
+          background: 'rgba(10, 10, 18, 0.8)',
+          backdropFilter: 'blur(10px)',
+          borderRadius: 2,
+          border: '1px solid rgba(187, 0, 255, 0.3)',
+          boxShadow: '0 4px 20px rgba(187, 0, 255, 0.25)',
+        }}
+      >
+        <Typography 
+          variant="h5" 
+          sx={{
+            fontFamily: '"Orbitron", "Bladerunner", monospace',
+            fontWeight: 700,
+            background: 'linear-gradient(45deg, #ff00ea 20%, #bb00ff 50%, #7700ff 80%)',
+            WebkitBackgroundClip: 'text',
+            WebkitTextFillColor: 'transparent',
+            mb: 3
+          }}
+        >
+          Favorite Countries
+        </Typography>
+
+        {favorites.length === 0 ? (
+          <Typography 
+            sx={{ 
+              color: '#bb79ff',
+              textAlign: 'center',
+              py: 4
+            }}
+          >
+            No favorite countries yet. Start exploring to add some!
+          </Typography>
+        ) : (
+          <Grid container spacing={3}>
+            {favorites.map((country) => (
+              <Grid item xs={12} sm={6} md={4} key={country.cca3}>
+                <CountryCard country={country} />
+              </Grid>
+            ))}
+          </Grid>
         )}
       </Paper>
     </Container>
