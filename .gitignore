@@ -1,0 +1,51 @@
+# Dependencies
+node_modules/
+rest-countries-explorer/node_modules/
+
+# Environment files
+.env
+.env.local
+.env.*.local
+.env.development
+.env.test
+.env.production
+
+# Build directories
+dist/
+build/
+
+# Debug logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# IDE and editor files
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# Python/Django
+*.pyc
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+.env/
+.venv/
+ENV/
+*.sqlite3
+
+# Testing
+coverage/
+.coverage
+.pytest_cache/
+.nyc_output/
+
+# OS files
+.DS_Store
+Thumbs.db
