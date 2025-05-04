@@ -1,7 +1,59 @@
-import { AppBar, Toolbar, Typography, Container, Box, Button, Stack } from '@mui/material';
-import { Link } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { 
+  AppBar, 
+  Toolbar, 
+  Typography, 
+  Container, 
+  Box, 
+  Button, 
+  Stack,
+  Menu,
+  MenuItem,
+  Avatar,
+  IconButton
+} from '@mui/material';
+import { Link, useNavigate } from 'react-router-dom';
 
 const Navbar = () => {
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [username, setUsername] = useState('');
+  const [anchorEl, setAnchorEl] = useState(null);
+  const navigate = useNavigate();
+  
+  // Check authentication status when component mounts
+  useEffect(() => {
+    const accessToken = localStorage.getItem('accessToken');
+    const storedUsername = localStorage.getItem('username');
+    
+    if (accessToken && storedUsername) {
+      setIsLoggedIn(true);
+      setUsername(storedUsername);
+    }
+  }, []);
+  
+  const handleProfileClick = (event) => {
+    setAnchorEl(event.currentTarget);
+  };
+  
+  const handleClose = () => {
+    setAnchorEl(null);
+  };
+  
+  const handleLogout = () => {
+    // Clear auth tokens and user info
+    localStorage.removeItem('accessToken');
+    localStorage.removeItem('refreshToken');
+    localStorage.removeItem('username');
+    
+    // Update state
+    setIsLoggedIn(false);
+    setUsername('');
+    handleClose();
+    
+    // Navigate to home
+    navigate('/');
+  };
+
   return (
     <AppBar
       position="fixed"
@@ -84,50 +136,152 @@ const Navbar = () => {
             Wander World
           </Typography>
 
-          {/* Right side: Buttons + Neon Dot */}
+        
           <Stack direction="row" spacing={2} alignItems="center">
-            <Button
-              component={Link}
-              to="/login"
-              variant="outlined"
-              sx={{
-                color: '#ff00ea',
-                borderColor: '#bb00ff',
-                background: 'rgba(187,0,255,0.05)',
-                borderWidth: 2,
-                borderRadius: 2,
-                fontWeight: 700,
-                textTransform: 'none',
-                letterSpacing: '1px',
-                '&:hover': {
-                  background: 'linear-gradient(90deg, #ff00ea22, #bb00ff22, #7700ff22)',
-                  borderColor: '#ff00ea',
-                  boxShadow: '0 0 10px #bb00ff77',
-                },
-              }}
-            >
-              Login
-            </Button>
-            <Button
-              component={Link}
-              to="/signup"
-              variant="contained"
-              sx={{
-                background: 'linear-gradient(90deg, #ff00ea, #bb00ff, #7700ff)',
-                color: '#fff',
-                fontWeight: 700,
-                borderRadius: 2,
-                textTransform: 'none',
-                letterSpacing: '1px',
-                boxShadow: '0 0 10px #bb00ff77',
-                '&:hover': {
-                  background: 'linear-gradient(90deg, #7700ff, #bb00ff, #ff00ea)',
-                  boxShadow: '0 0 18px #bb00ffcc',
-                },
-              }}
-            >
-              Signup
-            </Button>
+            {isLoggedIn ? (
+              <>
+                <Box 
+                  onClick={handleProfileClick}
+                  sx={{ 
+                    display: 'flex',
+                    alignItems: 'center',
+                    cursor: 'pointer',
+                    borderRadius: 2,
+                    padding: '6px 12px',
+                    background: 'linear-gradient(90deg, rgba(255, 0, 234, 0.1), rgba(187, 0, 255, 0.1))',
+                    border: '1px solid rgba(187, 0, 255, 0.3)',
+                    '&:hover': {
+                      background: 'linear-gradient(90deg, rgba(255, 0, 234, 0.2), rgba(187, 0, 255, 0.2))',
+                      boxShadow: '0 0 10px rgba(187, 0, 255, 0.3)',
+                    }
+                  }}
+                >
+                  <Avatar 
+                    sx={{ 
+                      width: 32, 
+                      height: 32,
+                      background: 'linear-gradient(45deg, #ff00ea, #bb00ff)',
+                      boxShadow: '0 0 10px rgba(187, 0, 255, 0.5)',
+                      mr: 1 
+                    }}
+                  >
+                    {username ? username[0].toUpperCase() : 'U'}
+                  </Avatar>
+                  <Typography 
+                    sx={{ 
+                      color: '#fff',
+                      fontWeight: 500
+                    }}
+                  >
+                    {username}
+                  </Typography>
+                </Box>
+
+                <Menu
+                  anchorEl={anchorEl}
+                  open={Boolean(anchorEl)}
+                  onClose={handleClose}
+                  PaperProps={{
+                    sx: {
+                      mt: 1.5,
+                      backgroundColor: 'rgba(10, 10, 18, 0.9)',
+                      backdropFilter: 'blur(10px)',
+                      border: '1px solid rgba(187, 0, 255, 0.3)',
+                      boxShadow: '0 4px 20px rgba(187, 0, 255, 0.25)',
+                      '& .MuiMenu-list': {
+                        padding: '4px 0',
+                      },
+                    },
+                  }}
+                  transformOrigin={{ horizontal: 'right', vertical: 'top' }}
+                  anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
+                >
+                  <MenuItem 
+                    component={Link} 
+                    to="/profile" 
+                    onClick={handleClose}
+                    sx={{
+                      color: '#fff',
+                      '&:hover': {
+                        background: 'rgba(187, 0, 255, 0.1)',
+                      }
+                    }}
+                  >
+                    My Profile
+                  </MenuItem>
+                  <MenuItem 
+                    component={Link} 
+                    to="/settings" 
+                    onClick={handleClose}
+                    sx={{
+                      color: '#fff',
+                      '&:hover': {
+                        background: 'rgba(187, 0, 255, 0.1)',
+                      }
+                    }}
+                  >
+                    Settings
+                  </MenuItem>
+                  <MenuItem 
+                    onClick={handleLogout}
+                    sx={{
+                      color: '#ff3d71',
+                      '&:hover': {
+                        background: 'rgba(255, 61, 113, 0.1)',
+                      }
+                    }}
+                  >
+                    Logout
+                  </MenuItem>
+                </Menu>
+              </>
+            ) : (
+              <>
+                <Button
+                  component={Link}
+                  to="/login"
+                  variant="outlined"
+                  sx={{
+                    color: '#ff00ea',
+                    borderColor: '#bb00ff',
+                    background: 'rgba(187,0,255,0.05)',
+                    borderWidth: 2,
+                    borderRadius: 2,
+                    fontWeight: 700,
+                    textTransform: 'none',
+                    letterSpacing: '1px',
+                    '&:hover': {
+                      background: 'linear-gradient(90deg, #ff00ea22, #bb00ff22, #7700ff22)',
+                      borderColor: '#ff00ea',
+                      boxShadow: '0 0 10px #bb00ff77',
+                    },
+                  }}
+                >
+                  Login
+                </Button>
+                <Button
+                  component={Link}
+                  to="/signup"
+                  variant="contained"
+                  sx={{
+                    background: 'linear-gradient(90deg, #ff00ea, #bb00ff, #7700ff)',
+                    color: '#fff',
+                    fontWeight: 700,
+                    borderRadius: 2,
+                    textTransform: 'none',
+                    letterSpacing: '1px',
+                    boxShadow: '0 0 10px #bb00ff77',
+                    '&:hover': {
+                      background: 'linear-gradient(90deg, #7700ff, #bb00ff, #ff00ea)',
+                      boxShadow: '0 0 18px #bb00ffcc',
+                    },
+                  }}
+                >
+                  Signup
+                </Button>
+              </>
+            )}
+                
             {/* Neon Dot */}
             <Box
               sx={{

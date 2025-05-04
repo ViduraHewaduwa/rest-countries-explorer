@@ -11,7 +11,9 @@ const Home = () => {
     searchQuery, 
     region, 
     setSearchQuery, 
-    setRegion 
+    setRegion, 
+    setSelectedLanguage,
+    selectedLanguage 
   } = useCountries();
 
   return (
@@ -62,6 +64,8 @@ const Home = () => {
         selectedRegion={region}
         onSearchChange={setSearchQuery}
         onRegionChange={setRegion}
+        onLanguageChange={setSelectedLanguage}   
+          selectedLanguage={selectedLanguage} 
       />
       
       {error ? (

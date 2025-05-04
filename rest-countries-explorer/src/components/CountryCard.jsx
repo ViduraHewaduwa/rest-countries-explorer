@@ -84,6 +84,9 @@ const CountryCard = ({ country }) => {
           <Typography>
             <strong>Capital:</strong> {country.capital?.[0] || 'N/A'}
           </Typography>
+          <Typography>
+          <strong>Languages:</strong> {country.languages ? Object.values(country.languages).join(', ') : 'N/A'}
+          </Typography>
         </Box>
       </CardContent>
     </Card>
